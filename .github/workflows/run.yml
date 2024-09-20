@@ -1,39 +1,39 @@
-名称：'GitHub Actions CloudFlare2DNSPod 机器人'
+name: 'GitHub Actions CloudFlare2DNSPod Bot'
 
-在：
-  推：
-    航班：
-      -主持
-  议程：
-    - cron：'*/15* * * *'
+on:
+  push:
+    branches: 
+      - master
+  schedule:
+    - cron: '*/15 * * * *'
 
-环境：
-  UPDATE_IPV4 ：是
-  UPDATE_IPV6 ：否
-工作：
-  建造：
-    运行于： ubuntu-latest
-    步骤：
-      -名称：'结帐'
-        用途：actions/checkout@v3
-      -名称：'设置 Python'
-        用途： actions/setup-python@v4
-        和：
-          python 版本：3.7
-      -名称：'安装依赖项'
-        运行：如果[ -frequirements.txt ] ; 然后 pip install -rrequirements.txt;菲
-      -名称：'运行 cf2dns v4'
-        如果： env.UPDATE_IPV4 == 'true' &&！取消（）
-        环境：
-          密钥： $ { { secrets.KEY } }
-          域名： $ { { secrets.DOMAINS } }
-          秘密 ID ： $ { { secrets.秘密 ID } }
-          密钥： $ { { secrets.SECRETKEY } }
-        运行： python cf2dns_actions.py A
-      -名称：'运行 cf2dns v6'
-        如果： env.UPDATE_IPV6 == 'true' &&！取消（）
-        环境：
-          密钥： $ { { secrets.KEY } }
+env:
+  UPDATE_IPV4: true
+  UPDATE_IPV6: false
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 'Checkout'
+        uses: actions/checkout@v3
+      - name: 'Set up Python'
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.7
+      - name: 'Install dependencies'
+        run: if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+      - name: 'run cf2dns v4'
+        if: env.UPDATE_IPV4 == 'true' && !cancelled()
+        env:
+          KEY: ${{ secrets.KEY }}
+          DOMAINS: ${{ secrets.DOMAINS }}
+          SECRETID: ${{ secrets.SECRETID }}
+          SECRETKEY: ${{ secrets.SECRETKEY }}
+        run: python cf2dns_actions.py A
+      - name: 'run cf2dns v6'
+        if: env.UPDATE_IPV6 == 'true' && !cancelled()
+        env:
+          KEY: ${{ secrets.KEY }}
           DOMAINS: ${{ secrets.DOMAINSV6 }}
           SECRETID: ${{ secrets.SECRETID }}
           SECRETKEY: ${{ secrets.SECRETKEY }}
